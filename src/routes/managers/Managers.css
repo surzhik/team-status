@@ -1,0 +1,65 @@
+
+.overHolder {
+  padding: 0;
+}
+
+.overHolder :global(.ant-table-content) {
+  overflow: auto;
+}
+
+.overHolder :global(.ant-table table) {
+  width: 500px
+}
+
+.overHolder :global(.ant-table-pagination.ant-pagination) {
+  float: none;
+}
+
+.buttonsHolder button:not(:last-child) {
+  margin-right: 15px;
+}
+
+.loaderHolder {
+  margin-top: 30px;
+}
+
+.dataHolder {
+  margin-top: 30px;
+}
+
+.buttonLink {
+  padding: 0 5px;
+  font-size: 16px;
+  line-height: 1;
+  border: none;
+  background: none;
+}
+
+.buttonLink:hover,
+.buttonLink:active,
+.buttonLink:focus {
+  background: none;
+  box-shadow: none;
+}
+
+.tag_0 {
+  color: #1190f2;
+}
+
+.tag_1 {
+  color: #dc3c52;
+
+}
+
+.tag_2 {
+  color: #7cb500;
+}
+
+
+
+@media (min-width: 767px) {
+  .overHolder :global(.ant-table table) {
+    width: 100%;
+  }
+}
+

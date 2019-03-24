@@ -1,0 +1,38 @@
+
+
+@import '../variables.css';
+
+html {
+  color: #222;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  height: 100%;
+  background: #fff;
+}
+
+:global(.app .ant-layout-sider-trigger) {
+  background: #fff;
+  color: #222;
+  margin-left: -1px;
+}
+
+:global(.app .ant-layout-sider::after) {
+  position: absolute;
+  content: '';
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: #f0f0f0;
+
+}
+
+.logoHolder {
+  text-align: center;
+  font-size: 35px;
+  margin-bottom: 30px;
+  color: #1890ff;
+}

@@ -1,0 +1,18 @@
+.loader {
+  animation: cssAnimation 0s 1s forwards;
+  visibility: hidden;
+}
+
+@keyframes cssAnimation {
+  to { visibility: visible; }
+}
+
+.icon {
+  width: 22px;
+  height: 22px;
+}
+
+.icon svg {
+  width: inherit;
+  height: inherit;
+}

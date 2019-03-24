@@ -1,0 +1,31 @@
+.addModal {
+  margin-bottom: 50px;
+}
+
+.addModal :global(.ant-form-item-label) {
+  text-align: left;
+}
+
+.addModal :global(.ant-form-item) {
+  margin-bottom: 5px;
+}
+
+.addModal :global(.ant-form-item-children .ant-time-picker) {
+  margin-right: 15px;
+}
+
+.required {
+  margin-top: 15px;
+  font-size: 12px;
+}
+
+.requiredField label::before,
+.required::before {
+  display: inline-block;
+  margin-right: 4px;
+  color: #f5222d;
+  font-size: 14px;
+  font-family: SimSun, sans-serif;
+  line-height: 1;
+  content: '*';
+}

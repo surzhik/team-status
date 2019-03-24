@@ -1,0 +1,15 @@
+.footerHolder {
+  font-size: 12px;
+  text-align: right;
+}
+
+.link {
+  margin-left: 10px;
+}
+
+.link,
+.link:active,
+.link:visited {
+  text-decoration: none;
+}
+

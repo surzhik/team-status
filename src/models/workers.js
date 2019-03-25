@@ -91,8 +91,15 @@ WorkerSchema.statics.getFullList = function({ page = 1, limit = 10, ...rest }) {
     },
     {
       $addFields: {
-        'managerId.fullName': {
+        fullName: {
           $concat: ['$firstName', ' ', '$lastName'],
+        },
+      },
+    },
+    {
+      $addFields: {
+        'managerId.fullName': {
+          $concat: ['$managerId.firstName', ' ', '$managerId.lastName'],
         },
       },
     },
@@ -114,26 +121,58 @@ WorkerSchema.statics.getFullList = function({ page = 1, limit = 10, ...rest }) {
   ];
 
   if (rest.matchColumn && rest.matchIn) {
-    let matchColumn = rest.matchColumn;
-    switch (rest.matchColumn) {
-      case 'skillsList':
-        matchColumn = 'skillsList.name';
-        break;
-      case 'managerId':
-        matchColumn = 'managerId.fullName';
-        break;
-      case 'currentProject':
-        matchColumn = 'currentProject.name';
-        break;
-      default:
-        break;
-    }
+    console.log('rest.matchIn', rest.matchIn);
+    const matchIn = rest.matchIn.split('|');
+    const $match = {
+      $and: [],
+    };
+
+    rest.matchColumn.split(',').forEach((column, index) => {
+      let matchColumn = column;
+      let matchObj = {};
+      const now = new Date();
+      switch (column) {
+        case 'skillsList':
+          matchColumn = 'skillsList.name';
+          matchObj = {
+            $in: matchIn[index].split(','),
+          };
+          break;
+        case 'managerId':
+          matchColumn = 'managerId.fullName';
+          matchObj = {
+            $in: matchIn[index].split(','),
+          };
+          break;
+        case 'currentProject':
+          matchColumn = 'currentProject.name';
+          matchObj = {
+            $in: matchIn[index].split(','),
+          };
+          break;
+        case 'freeSince':
+          matchObj = {
+            $lte: now,
+          };
+          break;
+        case 'onHolidaysTill':
+          matchObj = {
+            $gte: now,
+          };
+          break;
+        default:
+          matchObj = {
+            $in: matchIn[index].split(','),
+          };
+          break;
+      }
+      $match.$and.push({
+        [matchColumn]: matchObj,
+      });
+    });
+
     aggregate.push({
-      $match: {
-        [matchColumn]: {
-          $in: rest.matchIn.split(','),
-        },
-      },
+      $match,
     });
   }
 
@@ -144,7 +183,7 @@ WorkerSchema.statics.getFullList = function({ page = 1, limit = 10, ...rest }) {
       },
     });
   }
-  console.log(aggregate);
+
   return this.aggregatePaginate(this.aggregate(aggregate), {
     page: Number(page),
     limit: Number(limit),

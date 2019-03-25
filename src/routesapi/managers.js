@@ -8,7 +8,7 @@ router
   .route('/')
   .get(async (req, res, next) => {
     try {
-      res.json(await Managers.getFullList());
+      res.json(await Managers.getFullList({}));
     } catch (error) {
       return next(error);
     }
@@ -21,7 +21,7 @@ router
       return next(error);
     }
     try {
-      res.json(await Managers.getFullList());
+      res.json(await Managers.getFullList({}));
     } catch (error) {
       return next(error);
     }
@@ -33,7 +33,7 @@ router
       return next(error);
     }
     try {
-      res.json(await Managers.getFullList());
+      res.json(await Managers.getFullList({}));
     } catch (error) {
       return next(error);
     }
@@ -45,7 +45,7 @@ router
       return next(error);
     }
     try {
-      res.json(await Managers.getFullList());
+      res.json(await Managers.getFullList({}));
     } catch (error) {
       return next(error);
     }

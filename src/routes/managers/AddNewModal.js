@@ -172,10 +172,11 @@ class AddNewModal extends React.Component {
         afterClose={this.afterClose}
         confirmLoading={sending}
         footer={[
-          <Button key="back" onClick={handleCancel}>
+          <Button htmlType="button" key="back" onClick={handleCancel}>
             Return
           </Button>,
           <Button
+            htmlType="button"
             key="submit"
             type="primary"
             loading={sending}

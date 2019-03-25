@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import moment from 'moment';
 import {
   Button,
   Modal,
@@ -62,11 +63,8 @@ const initialFormValues = {
   firstName: '',
   lastName: '',
   managerId: null,
-  managerIdFiltered: [],
   currentProject: null,
-  currentProjectFiltered: [],
   skillsList: [],
-  skillsListFiltered: [],
   onHolidaysTill: null,
   freeSince: null,
   workingHoursFrom: null,
@@ -127,26 +125,14 @@ class AddNewModal extends React.Component {
         firstName: workerToEdit.firstName,
         lastName: workerToEdit.lastName,
         managerId: workerToEdit.managerId ? workerToEdit.managerId._id : null,
-        managerIdFiltered: workerToEdit.managerId
-          ? managers.filter(
-              manager => manager._id === workerToEdit.managerId._id,
-            )
-          : [],
+
         currentProject: workerToEdit.currentProject
           ? workerToEdit.currentProject._id
           : null,
-        currentProjectFiltered: workerToEdit.currentProject
-          ? projects.filter(
-              project => project._id === workerToEdit.currentProject._id,
-            )
-          : [],
+
         skillsList: workerToEdit.skillsList
-          ? workerToEdit.skillsList.map(skill => ({
-              key: skill._id,
-              label: skill.name,
-            }))
+          ? workerToEdit.skillsList.map(skill => skill._id)
           : [],
-        skillsListFiltered: [],
         onHolidaysTill: workerToEdit.onHolidaysTill,
         freeSince: workerToEdit.freeSince,
         workingHoursFrom: workerToEdit.workingHoursFrom,
@@ -162,19 +148,6 @@ class AddNewModal extends React.Component {
   onDateChange = (date, field) => {
     this.setState({
       [field]: date,
-    });
-  };
-
-  handleSearch = (value, field, source) => {
-    const dataToFilter = this.props[source];
-    this.setState({
-      [`${field}Filtered`]: dataToFilter.filter(row =>
-        row.firstName
-          ? value &&
-            (row.firstName.toLowerCase().includes(value.toLowerCase()) ||
-              row.lastName.toLowerCase().includes(value.toLowerCase()))
-          : value && row.name.toLowerCase().includes(value.toLowerCase()),
-      ),
     });
   };
 
@@ -243,7 +216,7 @@ class AddNewModal extends React.Component {
       lastName: lastName.trim(),
       managerId: managerId || null,
       currentProject: currentProject || null,
-      skillsList: skillsList.map(skill => skill.key),
+      skillsList,
       onHolidaysTill: onHolidaysTill
         ? onHolidaysTill
             .utcOffset(0)
@@ -294,11 +267,8 @@ class AddNewModal extends React.Component {
       notUniqueName,
       modalTitle,
       managerId,
-      managerIdFiltered,
       currentProject,
-      currentProjectFiltered,
       skillsList,
-      skillsListFiltered,
       onHolidaysTill,
       freeSince,
       workingHoursFrom,
@@ -306,9 +276,15 @@ class AddNewModal extends React.Component {
       workingHoursTimeZone,
       checkingName,
     } = this.state;
-    const { sending, handleCancel, visible } = this.props;
+    const {
+      sending,
+      handleCancel,
+      visible,
+      skills,
+      managers,
+      projects,
+    } = this.props;
 
-    console.log(this.state);
     return (
       <Modal
         visible={visible}
@@ -319,10 +295,11 @@ class AddNewModal extends React.Component {
         afterClose={this.afterClose}
         confirmLoading={sending}
         footer={[
-          <Button key="back" onClick={handleCancel}>
+          <Button htmlType="button" key="back" onClick={handleCancel}>
             Return
           </Button>,
           <Button
+            htmlType="button"
             key="submit"
             type="primary"
             loading={sending}
@@ -376,20 +353,14 @@ class AddNewModal extends React.Component {
           </Form.Item>
           <Form.Item label="Available Skills ">
             <Select
-              mode="multiple"
-              labelInValue
+              mode="tags"
+              allowClear
+              showArrow
               value={skillsList || undefined}
-              placeholder="Click and Type to assign Skills"
-              defaultActiveFirstOption={false}
-              showArrow={false}
-              filterOption={false}
-              onSearch={value =>
-                this.handleSearch(value, 'skillsList', 'skills')
-              }
+              placeholder="Click to assign Skills"
               onChange={value => this.handleChangeSelect(value, 'skillsList')}
-              notFoundContent={null}
             >
-              {skillsListFiltered.map(skill => (
+              {skills.map(skill => (
                 <Option key={skill._id}>{skill.name}</Option>
               ))}
             </Select>
@@ -400,16 +371,15 @@ class AddNewModal extends React.Component {
               allowClear
               value={managerId || undefined}
               placeholder="Click and Type to assign Manager"
-              defaultActiveFirstOption={false}
-              showArrow={false}
-              filterOption={false}
-              onSearch={value =>
-                this.handleSearch(value, 'managerId', 'managers')
-              }
               onChange={value => this.handleChangeSelect(value, 'managerId')}
-              notFoundContent={null}
+              filterOption={(input, option) =>
+                option.props.children
+                  .join()
+                  .toLowerCase()
+                  .indexOf(input.toLowerCase()) >= 0
+              }
             >
-              {managerIdFiltered.map(manager => (
+              {managers.map(manager => (
                 <Option key={manager._id}>
                   {manager.firstName} {manager.lastName}
                 </Option>
@@ -422,18 +392,18 @@ class AddNewModal extends React.Component {
               allowClear
               value={currentProject || undefined}
               placeholder="Click and Type to assign Project"
-              defaultActiveFirstOption={false}
-              showArrow={false}
-              filterOption={false}
-              onSearch={value =>
-                this.handleSearch(value, 'currentProject', 'projects')
-              }
+              showArrow
               onChange={value =>
                 this.handleChangeSelect(value, 'currentProject')
               }
               notFoundContent={null}
+              filterOption={(input, option) =>
+                option.props.children
+                  .toLowerCase()
+                  .indexOf(input.toLowerCase()) >= 0
+              }
             >
-              {currentProjectFiltered.map(project => (
+              {projects.map(project => (
                 <Option key={project._id}>{project.name}</Option>
               ))}
             </Select>
@@ -444,12 +414,14 @@ class AddNewModal extends React.Component {
               format="HH:mm"
               placeholder="From"
               onChange={date => this.onDateChange(date, 'workingHoursFrom')}
+              defaultOpenValue={moment('09:00', 'HH:mm')}
             />
             <TimePicker
               value={workingHoursTo}
               format="HH:mm"
               placeholder="To"
               onChange={date => this.onDateChange(date, 'workingHoursTo')}
+              defaultOpenValue={moment('18:00', 'HH:mm')}
             />
             <Select
               value={workingHoursTimeZone || undefined}

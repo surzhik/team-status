@@ -10,29 +10,22 @@ const router = express.Router();
 router
   .route('/')
   .get(async (req, res, next) => {
-    if (req.query.page) {
-      try {
-        const workers = await Workers.getFullList(req.query);
-        res.json({ data: workers });
-      } catch (error) {
-        return next(error);
-      }
-    } else {
+    if (req.query.initial) {
       let skills = null;
       let managers = null;
       let projects = null;
       try {
-        skills = await Skills.getFullList();
+        skills = await Skills.getFullList({ sort: 'name' });
       } catch (error) {
         return next(error);
       }
       try {
-        managers = await Managers.getFullList();
+        managers = await Managers.getFullList({ sort: 'fullName' });
       } catch (error) {
         return next(error);
       }
       try {
-        projects = await Projects.getFullList();
+        projects = await Projects.getFullList({ sort: 'name' });
       } catch (error) {
         return next(error);
       }
@@ -40,6 +33,13 @@ router
       try {
         const workers = await Workers.getFullList({});
         res.json({ data: workers, reference: { skills, managers, projects } });
+      } catch (error) {
+        return next(error);
+      }
+    } else {
+      try {
+        const workers = await Workers.getFullList(req.query);
+        res.json({ data: workers });
       } catch (error) {
         return next(error);
       }

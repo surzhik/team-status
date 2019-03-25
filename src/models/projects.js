@@ -24,11 +24,11 @@ const ProjectSchema = new Schema(
   { timestamps: true },
 );
 
-ProjectSchema.statics.getFullList = function() {
-  return this.find().sort({ id: 1 });
+ProjectSchema.statics.getFullList = function({ sort }) {
+  return this.find().sort(sort ? { [sort]: 1 } : { id: 1 });
 };
 
-ProjectSchema.statics.deleteProject = function({ id }, callback) {
+ProjectSchema.statics.deleteProject = function({ id }) {
   return this.findByIdAndRemove(id);
 };
 

@@ -1,16 +1,15 @@
-
 import React from 'react';
 import Layout from '../../components/Layout';
 import NotFound from './NotFound';
 
-const title = 'Page Not Found';
+const title = '404. Page Not Found';
 
-function action() {
+function action({ route, params }) {
   return {
     chunks: ['not-found'],
     title,
     component: (
-      <Layout>
+      <Layout route={route} params={params} title="Error 404">
         <NotFound title={title} />
       </Layout>
     ),

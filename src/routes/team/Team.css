@@ -11,6 +11,11 @@
   width: 500px;
 }
 
+.overHolder :global(.ant-tag) {
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+
 .overHolder :global(.ant-table-pagination.ant-pagination) {
   float: none;
 }
@@ -48,6 +53,15 @@
 
 .dateBefore {
   color: #7cb500;
+}
+
+.timeRange {
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+.actionsHolder {
+  white-space: nowrap;
 }
 
 @media (min-width: 767px) {

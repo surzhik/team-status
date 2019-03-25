@@ -28,8 +28,21 @@ const ManagerSchema = new Schema(
   { timestamps: true },
 );
 
-ManagerSchema.statics.getFullList = function() {
-  return this.find().sort({ id: 1 });
+ManagerSchema.statics.getFullList = function({ sort }) {
+  return this.aggregate([
+    {
+      $addFields: {
+        fullName: {
+          $concat: ['$firstName', ' ', '$lastName'],
+        },
+      },
+    },
+    {
+      $sort: {
+        [sort || 'id']: 1,
+      },
+    },
+  ]);
 };
 
 ManagerSchema.statics.deleteManager = function({ id }) {

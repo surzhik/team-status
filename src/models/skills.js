@@ -20,8 +20,8 @@ const SkillSchema = new Schema(
   { timestamps: true },
 );
 
-SkillSchema.statics.getFullList = function() {
-  return this.find().sort({ id: 1 });
+SkillSchema.statics.getFullList = function({ sort }) {
+  return this.find().sort(sort ? { [sort]: 1 } : { id: 1 });
 };
 
 SkillSchema.statics.deleteSkill = function({ id }) {

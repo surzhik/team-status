@@ -57,7 +57,7 @@ const columns = [
     key: 'action',
     width: 120,
     render: (text, record) => (
-      <span>
+      <span style={{ whiteSpace: 'nowrap' }}>
         <Button
           className={s.buttonLink}
           shape="circle"
@@ -190,24 +190,14 @@ class Projects extends React.Component {
             <Icon type="plus" /> Add new Project
           </Button>
         </div>
-        {loading && (
-          <div className={s.loaderHolder}>
-            <Loader />
-          </div>
-        )}
-        {!loading && (
-          <div className={s.dataHolder}>
-            {dataTable.length ? (
-              <Table
-                columns={columns}
-                dataSource={dataTable}
-                pagination={{ pageSize: 10 }}
-              />
-            ) : dataLoaded ? (
-              <h5>No Projects to display</h5>
-            ) : null}
-          </div>
-        )}
+        <div className={s.dataHolder}>
+          <Table
+            columns={columns}
+            dataSource={dataTable}
+            pagination={{ pageSize: 10 }}
+            loading={loading || !dataLoaded}
+          />
+        </div>
       </div>
     );
   }

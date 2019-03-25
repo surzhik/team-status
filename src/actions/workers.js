@@ -25,6 +25,14 @@ import {
 
 /* eslint-disable import/prefer-default-export */
 
+const prepareMatchIn = matchInData => {
+  let keyValue = '';
+  matchInData.forEach((matchIn, index) => {
+    keyValue = `${keyValue}${index !== 0 ? '|' : ''}${matchIn.join(',')}`;
+  });
+  return keyValue;
+};
+
 export const getWorkersSuccess = data => ({
   type: GET_WORKERS_SUCCESS,
   payload: data,
@@ -45,7 +53,11 @@ export function getWorkersList(data) {
     let getArgs = '';
     if (data) {
       Object.keys(data).forEach(key => {
-        getArgs = `${getArgs}${getArgs ? '&' : '?'}${key}=${data[key]}`;
+        let keyValue = data[key];
+        if (key === 'matchIn') {
+          keyValue = prepareMatchIn(data[key]);
+        }
+        getArgs = `${getArgs}${getArgs ? '&' : '?'}${key}=${keyValue}`;
       });
     }
     console.log('getArgs', getArgs);
@@ -87,10 +99,15 @@ export const setWorkerSending = () => ({
   type: ADD_WORKER,
 });
 
-export function addWorker(data) {
+export function addWorker({ pagination, ...rest }) {
   return dispatch => {
     dispatch(errorClear());
     dispatch(setWorkerSending());
+    const paginationUp = JSON.parse(JSON.stringify(pagination));
+    if (paginationUp.matchIn) {
+      paginationUp.matchIn = prepareMatchIn(paginationUp.matchIn);
+      paginationUp.matchColumn = paginationUp.matchColumn.join(',');
+    }
     return axios({
       url: '/api/workers',
       method: 'post',
@@ -98,7 +115,10 @@ export function addWorker(data) {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      data,
+      data: {
+        pagination: paginationUp,
+        ...rest,
+      },
     })
       .then(response => {
         dispatch(addWorkerSuccess(response.data));
@@ -107,8 +127,8 @@ export function addWorker(data) {
         dispatch(
           errorSet({
             error,
-            message: `It is unable to save new Member ${data.firstName} ${
-              data.lastName
+            message: `It is unable to save new Member ${rest.firstName} ${
+              rest.lastName
             }. Please try again later.`,
           }),
         );
@@ -130,10 +150,16 @@ export const setWorkerUpdating = () => ({
   type: UPDATE_WORKER,
 });
 
-export function updateWorker(data) {
+export function updateWorker({ pagination, ...rest }) {
   return dispatch => {
     dispatch(errorClear());
     dispatch(setWorkerUpdating());
+    const paginationUp = JSON.parse(JSON.stringify(pagination));
+    if (paginationUp.matchIn) {
+      paginationUp.matchIn = prepareMatchIn(paginationUp.matchIn);
+      paginationUp.matchColumn = paginationUp.matchColumn.join(',');
+    }
+
     return axios({
       url: '/api/workers',
       method: 'put',
@@ -141,7 +167,10 @@ export function updateWorker(data) {
         Accept: 'application/json',
         'Content-Type': 'application/json',
       },
-      data,
+      data: {
+        pagination: paginationUp,
+        ...rest,
+      },
     })
       .then(response => {
         dispatch(updateWorkerSuccess(response.data));
@@ -150,8 +179,8 @@ export function updateWorker(data) {
         dispatch(
           errorSet({
             error,
-            message: `It is unable to update Member ${data.firstName} ${
-              data.lastName
+            message: `It is unable to update Member ${rest.firstName} ${
+              rest.lastName
             }. Please try again later.`,
           }),
         );
@@ -173,10 +202,17 @@ export const setWorkerDeleting = () => ({
   type: DELETE_WORKER,
 });
 
-export function deleteWorker({ id }) {
+export function deleteWorker({ pagination, id }) {
   return dispatch => {
     dispatch(errorClear());
     dispatch(setWorkerDeleting());
+    console.log('deleteWorker', pagination, id);
+    const paginationUp = JSON.parse(JSON.stringify(pagination));
+    if (paginationUp.matchIn) {
+      paginationUp.matchIn = prepareMatchIn(paginationUp.matchIn);
+      paginationUp.matchColumn = paginationUp.matchColumn.join(',');
+    }
+
     return axios({
       url: '/api/workers',
       method: 'delete',
@@ -185,6 +221,7 @@ export function deleteWorker({ id }) {
         'Content-Type': 'application/json',
       },
       data: {
+        pagination: paginationUp,
         id,
       },
     })

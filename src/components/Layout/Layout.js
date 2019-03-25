@@ -42,7 +42,6 @@ class LayoutOver extends React.Component {
   };
 
   render() {
-    console.log(this.props);
     const {
       title,
       route: { path },
@@ -58,13 +57,19 @@ class LayoutOver extends React.Component {
           onCollapse={this.onCollapse}
           style={{ background: '#fff' }}
         >
-          <div className={s.logoHolder}><Icon type="contacts" /></div>
+          <div className={s.logoHolder}>
+            <Icon type="contacts" />
+          </div>
           <Menu
             defaultSelectedKeys={defaultSelectedKeys}
             mode="inline"
             onClick={this.handleMenuClick}
           >
             <Menu.Item key="/">
+              <Icon type="file-text" />
+              <span>Overview</span>
+            </Menu.Item>
+            <Menu.Item key="/team">
               <Icon type="team" />
               <span>Team</span>
             </Menu.Item>

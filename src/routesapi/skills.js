@@ -7,7 +7,7 @@ router
   .route('/')
   .get(async (req, res, next) => {
     try {
-      res.json(await Skills.getFullList());
+      res.json(await Skills.getFullList({}));
     } catch (error) {
       return next(error);
     }
@@ -20,7 +20,7 @@ router
       return next(error);
     }
     try {
-      res.json(await Skills.getFullList());
+      res.json(await Skills.getFullList({}));
     } catch (error) {
       return next(error);
     }
@@ -32,7 +32,7 @@ router
       return next(error);
     }
     try {
-      res.json(await Skills.getFullList());
+      res.json(await Skills.getFullList({}));
     } catch (error) {
       return next(error);
     }
@@ -44,7 +44,7 @@ router
       return next(error);
     }
     try {
-      res.json(await Skills.getFullList());
+      res.json(await Skills.getFullList({}));
     } catch (error) {
       return next(error);
     }

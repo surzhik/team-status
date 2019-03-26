@@ -7,9 +7,9 @@ import run from './run';
 // GitHub Pages
 const remote = {
   name: 'github',
-  url: 'https://github.com/surzhik/searchField.git',
+  url: 'https://github.com/surzhik/team-status.git',
   branch: 'gh-pages',
-  website: 'https://surzhik.github.io/searchField/',
+  website: 'https://surzhik.github.io/team-status/',
   static: true,
 };
 

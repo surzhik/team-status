@@ -8,7 +8,7 @@
 }
 
 .overHolder :global(.ant-table table) {
-  width: 500px
+  width: 500px;
 }
 
 .overHolder :global(.ant-table-pagination.ant-pagination) {

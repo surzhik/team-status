@@ -1,5 +1,4 @@
 
-
 @import '../variables.css';
 
 html {
@@ -27,7 +26,6 @@ body {
   bottom: 0;
   width: 1px;
   background: #f0f0f0;
-
 }
 
 .logoHolder {

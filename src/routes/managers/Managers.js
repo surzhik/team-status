@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import { message, Button, Icon, Table, Divider, Modal } from 'antd';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { getManagersList, deleteManager } from '../../actions/managers';
-import Loader from '../../components/Loader';
 import AddNewModal from './AddNewModal';
 /* eslint-disable css-modules/no-unused-class */
 import s from './Managers.css';

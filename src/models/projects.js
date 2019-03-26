@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import autoIncrement from 'mongoose-auto-increment';
-
+/* eslint-disable func-names */
 delete mongoose.connection.models.projects;
 
 const { Schema } = mongoose;

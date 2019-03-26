@@ -14,12 +14,12 @@ import s from './Team.css';
 
 function mapStateToProps({
   workers: {
-    loading,
-    sending,
-    deleting,
-    updating,
-    data: { docs, ...rest },
-    reference: { skills, managers, projects },
+    loading, // status for GET. Need's to fire different messages
+    sending, // status for POST
+    deleting, // status for DELETE
+    updating, // status for PUT
+    data: { docs, ...rest }, // docs - Members list, rest - pagination keys
+    reference: { skills, managers, projects }, // libs for filters
   },
   error,
 }) {
@@ -49,7 +49,11 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-const timeZone = ['UTC', 'GMT', 'AST', 'EST', 'PST'];
+// TODO: should also moved into database late
+const timeZone = ['GMT', 'CET', 'AST', 'EST', 'PST'];
+const utcOffset = [0, 60, -300, -240, -480];
+
+// TODO: should also moved into config or .env
 const limit = 10;
 
 class Team extends React.Component {
@@ -73,16 +77,16 @@ class Team extends React.Component {
   static defaultProps = {};
 
   state = {
-    dataLoaded: false,
-    showAddNewModal: false,
-    dataTable: [],
-    workerToEdit: null,
+    dataLoaded: false, // first load flag
+    showAddNewModal: false, // flag for show Modal with Member properties. New or Edi
+    dataTable: [], // Members data in prepared for Table component format
+    workerToEdit: null, // Member object to send in Modal
     paginationWithParams: {
+      // Object with all keys for API call
       page: 1,
       limit,
     },
-    filteredInfo: null,
-    sortedInfo: null,
+    sortedInfo: null, // Need to store sorted infromation to clear it
   };
 
   componentDidMount() {
@@ -114,6 +118,88 @@ class Team extends React.Component {
     }
   }
 
+  /* Fired on changes in Table Header: https://ant.design/components/table/
+   * Calculating parameters to call API
+   */
+  onTableChange = (tablePagination, filters, sorter) => {
+    const { actions } = this.props;
+
+    let paginationWithParams = Object.assign(
+      {},
+      this.state.paginationWithParams,
+    );
+
+    paginationWithParams.page = tablePagination.current;
+
+    if (sorter.columnKey && sorter.order) {
+      paginationWithParams.sortColumn = sorter.columnKey;
+      paginationWithParams.sortOrder = sorter.order;
+    } else {
+      delete paginationWithParams.sortColumn;
+      delete paginationWithParams.sortOrder;
+    }
+
+    Object.keys(filters).forEach(filterMatch => {
+      paginationWithParams = this.prepareMatch(
+        paginationWithParams,
+        filterMatch,
+        filters[filterMatch],
+      );
+    });
+
+    this.setState({
+      paginationWithParams,
+      sortedInfo: sorter,
+    });
+
+    actions.getWorkersList(paginationWithParams);
+  };
+
+  /* Preparing cell information for Working Hours Column
+   * row: data from dataTable
+   */
+  getHoursFormat = row => {
+    const {
+      workingHoursFrom,
+      workingHoursTo,
+      workingHoursTimeZone,
+      onHolidaysTill,
+      freeSince,
+    } = row;
+
+    const timeFrom = workingHoursFrom
+      ? workingHoursFrom.format('HH:mm')
+      : 'n/a';
+    const timeTo = workingHoursTo ? workingHoursTo.format('HH:mm') : 'n/a';
+    const tZone = workingHoursTimeZone
+      ? timeZone[Number(workingHoursTimeZone)]
+      : '';
+
+    let workingNow = false;
+    if (workingHoursFrom && workingHoursTo && workingHoursTimeZone) {
+      const now = moment();
+      const localFrom = workingHoursFrom
+        .clone()
+        .utcOffset(utcOffset[Number(workingHoursTimeZone)]);
+      const localTo = workingHoursTo
+        .clone()
+        .utcOffset(utcOffset[Number(workingHoursTimeZone)]);
+
+      workingNow = now.isAfter(localFrom) && now.isBefore(localTo);
+      workingNow = onHolidaysTill
+        ? workingNow && now.isAfter(onHolidaysTill)
+        : workingNow;
+      workingNow = freeSince
+        ? workingNow && now.isAfter(freeSince)
+        : workingNow;
+    }
+
+    return { timeString: `${timeFrom}-${timeTo} ${tZone}`, workingNow };
+  };
+
+  /* Preparing Table Header: https://ant.design/components/table/
+   * with all rules to display Sorters/Filters and Cells
+   */
   getColumns = () => {
     const { sortedInfo } = this.state;
     const { skills, projects, managers } = this.props;
@@ -157,19 +243,17 @@ class Team extends React.Component {
         dataIndex: 'workingHoursFrom',
         key: 'workingHours',
         render: (cell, row) => {
-          const timeFrom = row.workingHoursFrom
-            ? row.workingHoursFrom.format('HH:mm')
-            : 'n/a';
-          const timeTo = row.workingHoursTo
-            ? row.workingHoursTo.format('HH:mm')
-            : 'n/a';
-          const tZone = row.workingHoursTimeZone
-            ? timeZone[Number(row.workingHoursTimeZone)]
-            : '';
+          const workingTime = this.getHoursFormat(row);
+
           return (
-            <span
-              className={s.timeRange}
-            >{`${timeFrom}-${timeTo} ${tZone}`}</span>
+            <div className={s.timeRange}>
+              {workingTime.workingNow && (
+                <span className={s.workingNow}>
+                  <Icon type="clock-circle" /> Working
+                </span>
+              )}
+              {workingTime.timeString}
+            </div>
           );
         },
       },
@@ -201,7 +285,7 @@ class Team extends React.Component {
         filters: [
           {
             text: 'On Holidays',
-            value: 'after',
+            value: 'true',
           },
         ],
         filteredValue: this.getMatchIn('onHolidaysTill'),
@@ -230,7 +314,7 @@ class Team extends React.Component {
         filters: [
           {
             text: 'Free Now',
-            value: 'before',
+            value: 'true',
           },
         ],
         filteredValue: this.getMatchIn('freeSince'),
@@ -312,6 +396,55 @@ class Team extends React.Component {
     ];
   };
 
+  /* Get filter data for provided Column name
+  */
+  getMatchIn = column => {
+    const {
+      paginationWithParams: { matchColumn, matchIn },
+    } = this.state;
+    const columnIndex = matchColumn ? matchColumn.indexOf(column) : -1;
+    return columnIndex >= 0 && matchIn ? matchIn[columnIndex] : [];
+  };
+
+  /* Show Modal
+  */
+  showAddNewModal = () => {
+    this.setState({ showAddNewModal: true });
+  };
+
+  /* Hide Modal
+  */
+  handleCancelModal = () => {
+    this.setState({ showAddNewModal: false, workerToEdit: null });
+  };
+
+  /* Show Modal on Edit action
+  */
+  handleEdit = workerToEdit => {
+    this.setState({ workerToEdit, showAddNewModal: true });
+  };
+
+  /* Delete Confirm modal
+  */
+  handleDelete = worker => {
+    const { paginationWithParams } = this.state;
+    const { actions } = this.props;
+    Modal.confirm({
+      title: `Delete Team Member ${worker.firstName} ${worker.lastName}`,
+      content: <span>Are you sure you want to delete this worker?</span>,
+      okText: 'Yes, delete',
+      cancelText: 'Oh, No!',
+      onOk() {
+        return actions.deleteWorker({
+          id: worker._id,
+          pagination: paginationWithParams,
+        });
+      },
+    });
+  };
+
+  /* Preparing data to pass it into Table component or Modal to edit
+  */
   prepareDataTable = () => {
     const { data } = this.props;
     const dataTable = data.map((row, index) => ({
@@ -337,43 +470,8 @@ class Team extends React.Component {
     this.setState({ dataTable });
   };
 
-  showAddNewModal = () => {
-    this.setState({ showAddNewModal: true });
-  };
-
-  handleCancelModal = () => {
-    this.setState({ showAddNewModal: false, workerToEdit: null });
-  };
-
-  handleEdit = workerToEdit => {
-    this.setState({ workerToEdit, showAddNewModal: true });
-  };
-
-  handleDelete = worker => {
-    const { paginationWithParams } = this.state;
-    const { actions } = this.props;
-    Modal.confirm({
-      title: `Delete Team Member ${worker.firstName} ${worker.lastName}`,
-      content: <span>Are you sure you want to delete this worker?</span>,
-      okText: 'Yes, delete',
-      cancelText: 'Oh, No!',
-      onOk() {
-        return actions.deleteWorker({
-          id: worker._id,
-          pagination: paginationWithParams,
-        });
-      },
-    });
-  };
-
-  getMatchIn = column => {
-    const {
-      paginationWithParams: { matchColumn, matchIn },
-    } = this.state;
-    const columnIndex = matchColumn ? matchColumn.indexOf(column) : -1;
-    return columnIndex >= 0 && matchIn ? matchIn[columnIndex] : [];
-  };
-
+  /* Modifying matchColumn and matchIn parameters to send it to API
+  */
   prepareMatch = (
     paginationWithParams,
     column,
@@ -407,6 +505,8 @@ class Team extends React.Component {
     return paginationWithParamsNew;
   };
 
+  /* Modifying matchIn parameter to send it to API
+  */
   prepareMatchIn = (
     column,
     value,
@@ -426,49 +526,8 @@ class Team extends React.Component {
     return matchIn;
   };
 
-  onTableChange = (tablePagination, filters, sorter, extra) => {
-    const { filteredInfo } = this.state;
-    const { actions, pagination } = this.props;
-
-    let paginationWithParams = Object.assign(
-      {},
-      this.state.paginationWithParams,
-    );
-    if (tablePagination.current !== pagination.page) {
-      paginationWithParams.page = tablePagination.current;
-      this.setState({
-        paginationWithParams,
-      });
-    } else {
-      paginationWithParams.page =
-        JSON.stringify(filteredInfo) === JSON.stringify(filters)
-          ? pagination.page
-          : 1;
-      if (sorter.columnKey && sorter.order) {
-        paginationWithParams.sortColumn = sorter.columnKey;
-        paginationWithParams.sortOrder = sorter.order;
-      } else {
-        delete paginationWithParams.sortColumn;
-        delete paginationWithParams.sortOrder;
-      }
-
-      Object.keys(filters).forEach(filterMatch => {
-        paginationWithParams = this.prepareMatch(
-          paginationWithParams,
-          filterMatch,
-          filters[filterMatch],
-        );
-      });
-
-      this.setState({
-        paginationWithParams,
-        filteredInfo: filters,
-        sortedInfo: sorter,
-      });
-    }
-    actions.getWorkersList(paginationWithParams);
-  };
-
+  /* Modifying matchColumn matchIn parameters to display Members by Skill
+  */
   handleTag = skillName => {
     const { actions } = this.props;
     let paginationWithParams = Object.assign(
@@ -483,11 +542,12 @@ class Team extends React.Component {
       this.prepareMatchIn('skillsList', skillName, 0),
     );
 
-    console.log('paginationWithParams', paginationWithParams);
     this.setState({ paginationWithParams });
     actions.getWorkersList(paginationWithParams);
   };
 
+  /* Clear all filters
+  */
   handleClearFilters = () => {
     const { actions } = this.props;
     const paginationWithParams = {
@@ -495,14 +555,11 @@ class Team extends React.Component {
       limit,
     };
     this.setState({
-      filteredInfo: null,
       sortedInfo: null,
       paginationWithParams,
     });
     actions.getWorkersList(paginationWithParams);
   };
-
-  handleChangePage = () => {};
 
   render() {
     const {
@@ -511,8 +568,6 @@ class Team extends React.Component {
       dataTable,
       workerToEdit,
       paginationWithParams,
-      sortedInfo,
-      filteredInfo,
     } = this.state;
     const { loading, pagination } = this.props;
 
@@ -536,9 +591,7 @@ class Team extends React.Component {
             </Button>
           </span>
           <span>
-            {(Object.keys(paginationWithParams).length > 2 ||
-              sortedInfo ||
-              filteredInfo) && (
+            {Object.keys(paginationWithParams).length > 2 && (
               <Button htmlType="button" onClick={this.handleClearFilters}>
                 <Icon type="clear" /> Clear All Filters
               </Button>

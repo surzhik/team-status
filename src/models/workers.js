@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import autoIncrement from 'mongoose-auto-increment';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
-
+/* eslint-disable func-names */
 delete mongoose.connection.models.workers;
 
 const { Schema } = mongoose;
@@ -121,7 +121,6 @@ WorkerSchema.statics.getFullList = function({ page = 1, limit = 10, ...rest }) {
   ];
 
   if (rest.matchColumn && rest.matchIn) {
-    console.log('rest.matchIn', rest.matchIn);
     const matchIn = rest.matchIn.split('|');
     const $match = {
       $and: [],
@@ -206,7 +205,7 @@ WorkerSchema.statics.getFullList = function({ page = 1, limit = 10, ...rest }) {
     sort,
   });
   */
-  //return this.find().sort({ id: 1 });
+  // return this.find().sort({ id: 1 });
 };
 
 WorkerSchema.statics.checkWorker = function({ firstName, lastName, id }) {

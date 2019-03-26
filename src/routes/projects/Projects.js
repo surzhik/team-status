@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { message, Button, Icon, Table, Divider, Modal, Tag } from 'antd';
+import { message, Button, Icon, Table, Divider, Modal } from 'antd';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { getProjectsList, deleteProject } from '../../actions/projects';
-import Loader from '../../components/Loader';
 import AddNewModal from './AddNewModal';
+/* eslint-disable css-modules/no-unused-class */
 import s from './Projects.css';
 
 function mapStateToProps({

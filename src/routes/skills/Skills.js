@@ -5,8 +5,8 @@ import { bindActionCreators } from 'redux';
 import { message, Button, Icon, Table, Divider, Modal } from 'antd';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { getSkillsList, deleteSkill } from '../../actions/skills';
-import Loader from '../../components/Loader';
 import AddNewModal from './AddNewModal';
+/* eslint-disable css-modules/no-unused-class */
 import s from './Skills.css';
 
 function mapStateToProps({

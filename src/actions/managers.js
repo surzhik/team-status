@@ -3,7 +3,6 @@ import axios from 'axios';
 
 import { errorClear, errorSet } from './errors';
 
-
 import {
   GET_MANAGERS,
   GET_MANAGERS_SUCCESS,

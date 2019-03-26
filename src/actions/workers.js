@@ -2,9 +2,6 @@
 import axios from 'axios';
 
 import { errorClear, errorSet } from './errors';
-import { getSkillsList } from './skills';
-import { getManagersList } from './managers';
-import { getProjectsList } from './projects';
 
 import {
   GET_WORKERS,
@@ -60,7 +57,7 @@ export function getWorkersList(data) {
         getArgs = `${getArgs}${getArgs ? '&' : '?'}${key}=${keyValue}`;
       });
     }
-    console.log('getArgs', getArgs);
+
     return axios({
       url: `/api/workers${getArgs}`,
       method: 'get',
@@ -70,7 +67,6 @@ export function getWorkersList(data) {
       },
     })
       .then(response => {
-        console.log(response.data);
         dispatch(getWorkersSuccess(response.data));
       })
       .catch(error => {
@@ -206,7 +202,6 @@ export function deleteWorker({ pagination, id }) {
   return dispatch => {
     dispatch(errorClear());
     dispatch(setWorkerDeleting());
-    console.log('deleteWorker', pagination, id);
     const paginationUp = JSON.parse(JSON.stringify(pagination));
     if (paginationUp.matchIn) {
       paginationUp.matchIn = prepareMatchIn(paginationUp.matchIn);
@@ -263,7 +258,6 @@ export function checkWorker(data) {
       data,
     })
       .then(response => {
-        console.log(response.data);
         dispatch(checkWorkerSuccess(response.data));
         return response.data;
       })

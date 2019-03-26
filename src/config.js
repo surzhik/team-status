@@ -29,8 +29,8 @@ module.exports = {
     googleTrackingId: process.env.GOOGLE_TRACKING_ID, // UA-XXXXX-X
   },
 
-  //MongoDB
+  // MongoDB
   mongodb: {
     mongoURL: process.env.MONGO_URL || 'mongodb://localhost:27017/TeamStatus',
-  }
+  },
 };

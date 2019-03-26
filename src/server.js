@@ -15,14 +15,14 @@ import errorPageStyle from './routes/error/ErrorPage.css';
 import createFetch from './createFetch';
 import router from './router';
 import routerAPI from './routesapi';
-
-dotenv.config();
 // import assets from './asset-manifest.json'; // eslint-disable-line import/no-unresolved
 import chunks from './chunk-manifest.json'; // eslint-disable-line import/no-unresolved
 import configureStore from './store/configureStore';
 import { setRuntimeVariable } from './actions/runtime';
 
 import config from './config';
+
+dotenv.config();
 
 process.on('unhandledRejection', (reason, p) => {
   console.error('Unhandled Rejection at:', p, 'reason:', reason);
@@ -59,6 +59,7 @@ mongoose.connect(
     }
     const admin = new mongoose.mongo.Admin(mongoose.connection.db);
     admin.buildInfo((err, info) => {
+      /* eslint-disable no-console */
       console.log('mongodb:', info.version);
     });
   },
@@ -84,6 +85,10 @@ app.use((err, req, res, next) => {
   next(err);
 });
 app.use('/api', routerAPI);
+// starts the server and listens for requests
+app.listen(apiPort, () => {
+  console.log(`api running on port ${apiPort}`);
+});
 //
 // Register server-side rendering middleware
 // -----------------------------------------------------------------------------

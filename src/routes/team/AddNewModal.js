@@ -21,16 +21,14 @@ const { Option } = Select;
 
 function mapStateToProps({
   workers: {
-    sending,
-    updating,
-    data: { docs },
-    reference: { skills, managers, projects },
+    sending, // status for POST
+    updating, // status for PUT
+    reference: { skills, managers, projects }, // data to display in sects
   },
 }) {
   return {
     sending,
     updating,
-    data: docs,
     skills,
     managers,
     projects,
@@ -81,7 +79,6 @@ class AddNewModal extends React.Component {
   static propTypes = {
     sending: PropTypes.bool.isRequired,
     updating: PropTypes.bool.isRequired,
-    data: PropTypes.array.isRequired,
     skills: PropTypes.array.isRequired,
     managers: PropTypes.array.isRequired,
     projects: PropTypes.array.isRequired,
@@ -103,24 +100,14 @@ class AddNewModal extends React.Component {
     ...initialFormValues,
   };
 
-  componentDidMount() {}
-
   componentDidUpdate(prevProps) {
-    const {
-      sending,
-      updating,
-      handleCancel,
-      workerToEdit,
-      managers,
-      projects,
-    } = this.props;
+    const { sending, updating, handleCancel, workerToEdit } = this.props;
 
     if ((!sending && prevProps.sending) || (!updating && prevProps.updating)) {
       handleCancel();
     }
 
     if (workerToEdit && prevProps.workerToEdit !== workerToEdit) {
-      // console.log(workerToEdit);
       this.setState({
         firstName: workerToEdit.firstName,
         lastName: workerToEdit.lastName,
@@ -151,6 +138,8 @@ class AddNewModal extends React.Component {
     });
   };
 
+  /* Checking Full name for already exists in DB
+  */
   checkWorkerName = debounce(() => {
     const { firstName, lastName } = this.state;
     const { actions, workerToEdit } = this.props;
@@ -242,6 +231,8 @@ class AddNewModal extends React.Component {
     return formData;
   };
 
+  /* Adding/Updating Member details
+  */
   handleAddNewWorker = event => {
     if (event) {
       event.preventDefault();
@@ -432,10 +423,10 @@ class AddNewModal extends React.Component {
                 this.handleChangeSelect(value, 'workingHoursTimeZone')
               }
             >
-              <Option value="0">UTC</Option>
-              <Option value="1">GMT</Option>
-              <Option value="2">AST</Option>
-              <Option value="3">EST</Option>
+              <Option value="0">GMT</Option>
+              <Option value="1">CET</Option>
+              <Option value="2">EST</Option>
+              <Option value="3">AST</Option>
               <Option value="4">PST</Option>
             </Select>
           </Form.Item>

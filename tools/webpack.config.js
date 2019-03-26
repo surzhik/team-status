@@ -13,7 +13,6 @@ const SRC_DIR = resolvePath('src');
 const BUILD_DIR = resolvePath('build');
 
 const isDebug = !process.argv.includes('--release');
-console.log('isDebug', isDebug);
 const isVerbose = process.argv.includes('--verbose');
 const isAnalyze =
   process.argv.includes('--analyze') || process.argv.includes('--analyse');
@@ -42,7 +41,7 @@ const config = {
 
   output: {
     path: resolvePath(BUILD_DIR, 'public/assets'),
-    publicPath: isDebug ? '/assets/' : '/searchField/assets/',
+    publicPath: isDebug ? '/assets/' : '/team-status/assets/',
     pathinfo: isVerbose,
     filename: isDebug ? '[name].js' : '[name].[chunkhash:8].js',
     chunkFilename: isDebug

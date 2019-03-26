@@ -1,5 +1,5 @@
-## Demo
-https://surzhik.github.io/team-status/
+## GitHub
+https://github.com/surzhik/team-status
 
 
 ## Download and Install

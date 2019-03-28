@@ -370,12 +370,10 @@ class Team extends React.Component {
         dataIndex: 'managerId',
         key: 'managerId',
         sorter: (a, b) => {
-          const aManager = a.managerId
-            ? `${a.managerId.firstName} ${a.managerId.lastName}`
-            : '';
-          const bManager = b.currentProject
-            ? `${b.managerId.firstName} ${b.managerId.lastName}`
-            : '';
+          const aManager =
+            a.managerId && a.managerId.fullName ? a.managerId.fullName : '';
+          const bManager =
+            b.managerId && b.managerId.fullName ? b.managerId.fullName : '';
           return aManager.localeCompare(bManager);
         },
         sortOrder:
@@ -383,13 +381,7 @@ class Team extends React.Component {
           sortedInfo.columnKey === 'managerId' &&
           sortedInfo.order,
         render: managerId =>
-          managerId ? (
-            <div key={managerId._id}>
-              {managerId.firstName} {managerId.lastName}
-            </div>
-          ) : (
-            'n/a'
-          ),
+          managerId && managerId.fullName ? managerId.fullName : 'n/a',
         filters: managers.map(manager => ({
           text: `${manager.firstName} ${manager.lastName}`,
           value: `${manager.firstName} ${manager.lastName}`,

@@ -199,10 +199,10 @@ class Home extends React.Component {
           <p>
             In additional to API requested functionality, sorting option was
             added. It follow from pagination request:
-            <pre>
-              ?page=1&limit=10&sortColumn=onHolidaysTill&sortOrder=ascend&matchColumn=freeSince&matchIn=true
-            </pre>
           </p>
+          <pre>
+            ?page=1&limit=10&sortColumn=onHolidaysTill&sortOrder=ascend&matchColumn=freeSince&matchIn=true
+          </pre>
           <p>
             You can sort by Name, On Holidays Till, Free Since, Project and
             Manager

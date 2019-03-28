@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import autoIncrement from 'mongoose-auto-increment';
 import mongooseAggregatePaginate from 'mongoose-aggregate-paginate-v2';
 /* eslint-disable func-names */
+/* eslint-disable no-case-declarations */
 delete mongoose.connection.models.workers;
 
 const { Schema } = mongoose;

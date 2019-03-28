@@ -214,7 +214,7 @@ class Team extends React.Component {
         sorter: (a, b) => a.firstName.localeCompare(b.firstName),
         sortOrder:
           sortedInfo && sortedInfo.columnKey === 'fullName' && sortedInfo.order,
-        filterDropdown: ({ clearFilters }) => (
+        filterDropdown: () => (
           <div style={{ padding: 8 }}>
             <Input
               placeholder="Search for Member"
@@ -223,7 +223,7 @@ class Team extends React.Component {
               style={{ width: 188, marginBottom: 8, display: 'block' }}
             />
             <Button
-              onClick={() => this.handleResetSearch(clearFilters)}
+              onClick={() => this.handleResetSearch()}
               size="small"
               style={{ width: 90 }}
             >
@@ -237,6 +237,7 @@ class Team extends React.Component {
             style={{ color: filtered ? '#1890ff' : undefined }}
           />
         ),
+        filteredValue: this.getMatchIn('fullName'),
       },
       {
         title: 'Skills',

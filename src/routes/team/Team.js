@@ -357,8 +357,7 @@ class Team extends React.Component {
           sortedInfo &&
           sortedInfo.columnKey === 'currentProject' &&
           sortedInfo.order,
-        render: project =>
-          project ? <div key={project._id}>{project.name}</div> : 'n/a',
+        render: project => (project ? project.name : 'n/a'),
         filters: projects.map(project => ({
           text: project.name,
           value: project.name,

@@ -4,13 +4,14 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import moment from 'moment';
 import { orderBy } from 'lodash';
-import { message, Button, Icon, Table, Modal, Tag, Divider } from 'antd';
+import { message, Button, Icon, Table, Modal, Tag, Divider, Input } from 'antd';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import { getWorkersList, deleteWorker } from '../../actions/workers';
 import AddNewModal from './AddNewModal';
 /* eslint-disable css-modules/no-unused-class */
 /* eslint-disable no-underscore-dangle */
 import s from './Team.css';
+import debounce from '../../debounce';
 
 function mapStateToProps({
   workers: {
@@ -213,6 +214,29 @@ class Team extends React.Component {
         sorter: (a, b) => a.firstName.localeCompare(b.firstName),
         sortOrder:
           sortedInfo && sortedInfo.columnKey === 'fullName' && sortedInfo.order,
+        filterDropdown: ({ clearFilters }) => (
+          <div style={{ padding: 8 }}>
+            <Input
+              placeholder="Search for Member"
+              value={this.getMatchIn('fullName')}
+              onChange={e => this.handleSearchInput(e.target.value)}
+              style={{ width: 188, marginBottom: 8, display: 'block' }}
+            />
+            <Button
+              onClick={() => this.handleResetSearch(clearFilters)}
+              size="small"
+              style={{ width: 90 }}
+            >
+              Reset
+            </Button>
+          </div>
+        ),
+        filterIcon: filtered => (
+          <Icon
+            type="search"
+            style={{ color: filtered ? '#1890ff' : undefined }}
+          />
+        ),
       },
       {
         title: 'Skills',
@@ -405,6 +429,49 @@ class Team extends React.Component {
     const columnIndex = matchColumn ? matchColumn.indexOf(column) : -1;
     return columnIndex >= 0 && matchIn ? matchIn[columnIndex] : [];
   };
+
+  /* Search for Full name
+  */
+  handleSearchInput = searchText => {
+    let paginationWithParams = Object.assign(
+      {},
+      this.state.paginationWithParams,
+    );
+    paginationWithParams = this.prepareMatch(paginationWithParams, 'fullName', [
+      searchText,
+    ]);
+
+    this.setState({ paginationWithParams }, () => {
+      this.checkWorkerName();
+    });
+  };
+
+  /* Reset Search
+  */
+  handleResetSearch = () => {
+    let paginationWithParams = Object.assign(
+      {},
+      this.state.paginationWithParams,
+    );
+    const { actions } = this.props;
+    paginationWithParams = this.prepareMatch(
+      paginationWithParams,
+      'fullName',
+      null,
+      false,
+    );
+
+    this.setState({ paginationWithParams });
+    actions.getWorkersList(paginationWithParams);
+  };
+
+  /* Checking Full name for already exists in DB
+*/
+  checkWorkerName = debounce(() => {
+    const { paginationWithParams } = this.state;
+    const { actions } = this.props;
+    actions.getWorkersList(paginationWithParams);
+  }, 500);
 
   /* Show Modal
   */

@@ -149,6 +149,14 @@ WorkerSchema.statics.getFullList = function({ page = 1, limit = 10, ...rest }) {
             $in: matchIn[index].split(','),
           };
           break;
+        case 'fullName':
+          matchColumn = 'fullName';
+          const regexFullName = new RegExp(
+            ['.*', matchIn[index], '.*'].join(''),
+            'i',
+          );
+          matchObj = regexFullName;
+          break;
         case 'freeSince':
           matchObj = {
             $lte: now,
@@ -187,25 +195,6 @@ WorkerSchema.statics.getFullList = function({ page = 1, limit = 10, ...rest }) {
     page: Number(page),
     limit: Number(limit),
   });
-  /*
-  const options = {};
-  const sort = {};
-  if (rest.skillsList) {
-    options.skillsList = { $in: rest.skillsList.split(',') };
-  }
-  if (rest.sortColumn && rest.sortOrder) {
-    sort[rest.sortColumn] = rest.sortOrder === 'ascend' ? 1 : -1;
-  }
-
-  console.log(sort);
-  return this.paginate(options, {
-    page: Number(page),
-    limit: Number(limit),
-    populate: 'currentProject managerId skillsList',
-    sort,
-  });
-  */
-  // return this.find().sort({ id: 1 });
 };
 
 WorkerSchema.statics.checkWorker = function({ firstName, lastName, id }) {

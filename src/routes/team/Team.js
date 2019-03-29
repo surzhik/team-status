@@ -57,7 +57,7 @@ const utcOffset = [0, 60, -300, -240, -480];
 // TODO: should also moved into config or .env
 const limit = 10;
 
-class Team extends React.Component {
+export class Team extends React.Component {
   /* eslint-disable react/forbid-prop-types */
   /* eslint-disable no-nested-ternary */
   /* eslint-disable react/no-did-update-set-state */

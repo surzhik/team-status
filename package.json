@@ -21,6 +21,7 @@
     "cookie-parser": "^1.4.3",
     "dotenv": "^7.0.0",
     "enzyme-adapter-react-16": "^1.10.0",
+    "enzyme-to-json": "^3.3.5",
     "express": "^4.16.4",
     "history": "^4.7.2",
     "isomorphic-style-loader": "^4.0.0",

@@ -74,7 +74,7 @@ module.exports = {
   // roots: // [array<string>]
   // setupFiles: // [array]
   // setupTestFrameworkScriptFile: // [string]
-  // snapshotSerializers: // [array<string>]
+  snapshotSerializers: ['enzyme-to-json/serializer'],
   // testEnvironment: // [string]
   // testMatch: // [array<string>]
   // testPathIgnorePatterns: // [array<string>]

@@ -9,8 +9,98 @@ import Link from '../../components/Link';
 /* eslint-disable react/jsx-no-comment-textnodes */
 import s from './Home.css';
 
+const users = [
+  ['John Doe', 'Doe Industries', 'john.doe.88'],
+  ['John Doe', 'Doe Industries', 'thejohn'],
+  ['John Doe', 'Doe Limited', 'john.doe.88'],
+  ['Jane Doe', 'Doe Industries', 'jane'],
+];
+
 class Home extends React.Component {
+  handleDuplicates = users => {
+    const persons = {};
+    // preparing Object for each name
+
+    users.forEach(user => {
+      const userName = user[0];
+      const userCompany = user[1];
+      const userAlias = user[2];
+      // top level for name
+      if (!persons[userName]) {
+        persons[userName] = {};
+      }
+      // second level for aliases
+      if (!persons[userName][userAlias]) {
+        persons[userName][userAlias] = [];
+      }
+      // alias have array with company names
+      if (persons[userName][userAlias].indexOf(userCompany) < 0) {
+        persons[userName][userAlias].push(userCompany);
+      }
+    });
+
+    // check for each alias if same company name exists in another alias
+    function checkForSameCompany(person, aliasKeys, aliasParent, company) {
+      let gotSameCompany = false;
+      aliasKeys.forEach(alias => {
+        if (
+          aliasParent !== alias &&
+          person[alias].indexOf(company) >= 0 &&
+          !gotSameCompany
+        ) {
+          gotSameCompany = true;
+        }
+      });
+
+      return gotSameCompany;
+    }
+
+    // check if we have unique user
+    function checkIfGotMoreThenOneCompany(person) {
+      let gotMore = false;
+      Object.keys(person).forEach(alias => {
+        if (!gotMore && person[alias].length > 1) {
+          gotMore = true;
+        }
+      });
+
+      return gotMore;
+    }
+
+    const personsOut = [];
+    Object.keys(persons).forEach(person => {
+      const aliasKeys = Object.keys(persons[person]);
+      const gotMore = checkIfGotMoreThenOneCompany(persons[person]);
+
+      aliasKeys.forEach(alias => {
+        const companyKeys = persons[person][alias];
+
+        companyKeys.forEach(company => {
+          if (aliasKeys.length === 1 && !gotMore) {
+            // different users
+            personsOut.push([person, '']);
+          } else if (aliasKeys.length === 1) {
+            // same person, two companies
+            personsOut.push([person, company]);
+          } else if (
+            !gotMore &&
+            checkForSameCompany(persons[person], aliasKeys, alias, company)
+          ) {
+            // different people, same company
+            personsOut.push([person, alias]);
+          } else {
+            // different people, some in same company
+            personsOut.push([person, `${alias} - ${company}`]);
+          }
+        });
+      });
+    });
+    console.log(personsOut);
+    console.log('---');
+  };
+
   render() {
+    this.handleDuplicates(users);
     return (
       <div className={s.overHolder}>
         <h2>Task: Team Status</h2>
